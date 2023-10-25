@@ -11,15 +11,16 @@ function AddTask() {
         priority: 'medium',
     });
 
-    const handleChange = (e) => {
+    const handleChange = async (e) => {
         const { name, value } = e.target;
         setTaskData({
             ...taskData,
             [name]: value,
         });
+        console.log(taskData);
     };
 
-    const handleImageChange = (e) => {
+    const handleImageChange = async (e) => {
         const imageFile = e.target.files[0];
         setTaskData({
             ...taskData,
@@ -29,8 +30,8 @@ function AddTask() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log(taskData,'enthaaaa ith');
 
-        // Create a FormData object to send the image file.
         const formData = new FormData();
         formData.append('heading', taskData.heading);
         formData.append('description', taskData.description);
@@ -39,19 +40,12 @@ function AddTask() {
         formData.append('image', taskData.image);
         formData.append('priority', taskData.priority);
 
+        console.log(formData.get('heading'),'onnuleeeeee');
+
         const response = await createTask(formData)
         if (response.status === 200) {
             console.log('Task added successfully');
         }
-        // axios.post('/api/tasks', formData)
-        //   .then((response) => {
-        //     console.log('Task added successfully');
-        //     // You can update the task list or perform other actions.
-        //   })
-        //   .catch((error) => {
-        //     console.error('Error adding task:', error);
-        //     // Handle errors and display a message to the user.
-        //   });
     };
 
     return (

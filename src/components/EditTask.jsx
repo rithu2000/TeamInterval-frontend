@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { editTask, showTask } from '../axios/axios';
+import { useNavigate, useParams } from 'react-router-dom';
 
-function EditTask({ taskId }) {
+function EditTask() {
+  const navigate = useNavigate();
+  const { taskId } = useParams();
+  const [image,setImage] = useState();
+
+
   const [editedTask, setEditedTask] = useState({
     heading: '',
     description: '',
@@ -12,9 +18,10 @@ function EditTask({ taskId }) {
   });
 
   useEffect(() => {
-    // Fetch the task details from the server using taskId
-    axios.get(`/api/tasks/${taskId}`)
-      .then((response) => {
+    const fetchData = async () => {
+      const response = await showTask(taskId)
+      if (response.status === 200) {
+        console.log('Task fetch successful');
         const task = response.data;
         setEditedTask({
           heading: task.heading,
@@ -24,10 +31,10 @@ function EditTask({ taskId }) {
           image: task.image,
           priority: task.priority,
         });
-      })
-      .catch((error) => {
-        console.error('Error fetching task details:', error);
-      });
+        setImage(`http://localhost:8000/${task.image}`)
+      }
+    }
+    fetchData();
   }, [taskId]);
 
   const handleChange = (e) => {
@@ -44,12 +51,11 @@ function EditTask({ taskId }) {
       ...editedTask,
       image: imageFile,
     });
+    setImage(URL.createObjectURL(imageFile))
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Create a FormData object to send the updated task data, including the image file.
     const formData = new FormData();
     formData.append('heading', editedTask.heading);
     formData.append('description', editedTask.description);
@@ -58,15 +64,11 @@ function EditTask({ taskId }) {
     formData.append('image', editedTask.image);
     formData.append('priority', editedTask.priority);
 
-    axios.put(`/api/tasks/${taskId}`, formData)
-      .then((response) => {
-        console.log('Task updated successfully');
-        // Redirect to the task details page or perform other actions.
-      })
-      .catch((error) => {
-        console.error('Error updating task:', error);
-        // Handle errors and display a message to the user.
-      });
+    const response = await editTask(taskId, formData)
+    if (response.status === 200) {
+      console.log('Task updated successfully');
+      navigate('/')
+    }
   };
 
   return (
@@ -113,13 +115,14 @@ function EditTask({ taskId }) {
           />
         </div>
         <div>
-          <label htmlFor="image">Image:</label>
+          <label htmlFor="image">Change Image:</label>
           <input
             type="file"
             id="image"
             name="image"
             onChange={handleImageChange}
           />
+          {editedTask.image && <img className='w-[200px]' src={image} alt="Task View" />}
         </div>
         <div>
           <label htmlFor="priority">Priority:</label>
