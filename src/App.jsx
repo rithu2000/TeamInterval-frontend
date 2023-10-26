@@ -4,10 +4,12 @@ import ListTasks from './components/ListTasks';
 import AddTask from './components/AddTask';
 import EditTask from './components/EditTask';
 import TaskDetails from './components/TaskDetails';
+import { Toaster } from 'react-hot-toast'
 
 function App() {
   return (
     <Router>
+      <Toaster position='top-center' />
       <Routes>
         <Route exact path="/" element={<ListTasks />} />
         <Route path="/add-task" element={<AddTask />} />
